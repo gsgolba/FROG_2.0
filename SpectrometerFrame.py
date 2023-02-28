@@ -11,6 +11,8 @@ NavigationToolbar2Tk)
 import spectrometer
 import time
 
+button_padding = {'padx': 2, 'pady': 2}
+
 class SpectrometerFrame(tk.Frame):
     def __init__(self,parent):
         tk.Frame.__init__(self,parent,highlightbackground='orange',highlightthickness=2)
@@ -41,7 +43,7 @@ class SpectrometerFrame(tk.Frame):
         self.ControlFrame.grid(row=1, column=0)
 
         self.connect_spectrometer = tk.Button(self.ControlFrame, text='Connect Virtual Spectrometer', command=self.connect_virtual)
-        self.connect_spectrometer.grid(row=0,column=0)
+        self.connect_spectrometer.grid(row=0,column=0,**button_padding)
         self.connect_spectrometer_= tk.Button(self.ControlFrame, text='Connect Real Spectrometer', command=self.connect_real)
         self.connect_spectrometer_.grid(row=0,column=1)
         self.disconnect_spectrometer = tk.Button(self.ControlFrame, text = 'Disconnect (either) Spectrometer', command=self.disconnect)
