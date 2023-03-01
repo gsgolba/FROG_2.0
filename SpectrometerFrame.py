@@ -45,9 +45,9 @@ class SpectrometerFrame(tk.Frame):
         self.connect_spectrometer = tk.Button(self.ControlFrame, text='Connect Virtual Spectrometer', command=self.connect_virtual)
         self.connect_spectrometer.grid(row=0,column=0,**button_padding)
         self.connect_spectrometer_= tk.Button(self.ControlFrame, text='Connect Real Spectrometer', command=self.connect_real)
-        self.connect_spectrometer_.grid(row=0,column=1)
+        self.connect_spectrometer_.grid(row=0,column=1, **button_padding)
         self.disconnect_spectrometer = tk.Button(self.ControlFrame, text = 'Disconnect (either) Spectrometer', command=self.disconnect)
-        self.disconnect_spectrometer.grid(row=0,column=2)
+        self.disconnect_spectrometer.grid(row=0,column=2, **button_padding)
 
         self.min_wave_entry = tk.Entry(self.ControlFrame, textvariable=self.min_wave_var)
         self.min_wave_entry.bind('<Return>', self.set_min_wave)
