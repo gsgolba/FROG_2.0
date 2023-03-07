@@ -13,14 +13,14 @@ from System import Decimal
 
 
 UNIT_CONVERTER = 4.901960784313725
-WAIT_TIME = 1
+WAIT_TIME = 1.0
+MOVE_WAIT_TIME = 60000
 class Controller:
     def __init__(self, serial_num, motor_name):
         self.serial_num = serial_num
         self.motor_name = motor_name
         try:
             DeviceManagerCLI.BuildDeviceList()
-            print('hey \n', DeviceManagerCLI.GetDeviceList())
         except:
             print('Trouble with building device on DeviceManagerCLI')
             return
@@ -66,17 +66,16 @@ class Controller:
     def is_homed(self):
         return self.controller.Status.IsHomed
     def home(self):
-        self.controller.Home(0)
-        self.wait()
+        #print('homing')
+        self.controller.Home(MOVE_WAIT_TIME)
     def move_relative(self, dis):
         #print('do relative move')
         self.controller.SetMoveRelativeDistance(Decimal(dis))
-        self.controller.MoveRelative(0)
-        self.wait()
+        self.controller.MoveRelative(MOVE_WAIT_TIME)
     def move_absolute(self, pos):
-        self.wait()
-        self.controller.MoveTo(Decimal(pos), 0)
-        self.wait()
+        #print('moving device to ', Decimal(pos))
+        self.controller.MoveTo(Decimal(pos), MOVE_WAIT_TIME)
+        #print('move absolute done')
     def disable(self):
         self.controller.DisableDevice()
     def set_jog_step_size(self, step_size):
@@ -87,21 +86,17 @@ class Controller:
     def get_jog_step_size(self):
         return self.controller.GetJogStepSize()
     def jog_forward(self):
-        self.controller.MoveJog(MotorDirection.Forward, 0)
-        self.wait()
-        #print('forward done')
+        while self.controller.IsDeviceBusy:
+            print('waiting for motor')
+            time.sleep(WAIT_TIME)
+        #print('doing forward jog')
+        self.controller.MoveJog(MotorDirection.Forward, MOVE_WAIT_TIME)
     def jog_backward(self):
-        self.controller.MoveJog(MotorDirection.Backward, 0)
-        self.wait()
-        #print('backward done')
-    def wait(self, waitTimeout = WAIT_TIME):
-        if self.controller.IsDeviceBusy:
-            #print('device busy')
-            time.sleep(waitTimeout)
-            self.wait()
-        return
-    def is_controller_busy(self):
-        return self.controller.IsDeviceBusy
+        while self.controller.IsDeviceBusy:
+            print('waiting for motor')
+            time.sleep(WAIT_TIME)
+        #print('doing backward jog')
+        self.controller.MoveJog(MotorDirection.Backward, MOVE_WAIT_TIME)
     def save_this_motor_position(self):
         '''
         Couldn't think of a simpler solution:
@@ -123,21 +118,21 @@ class Controller:
         
 def main():
     #Below is just code to test whether we can move the motor accordingly
-    myController = Controller(str('26001568'), str('ZST225'))
+    myController = Controller(str('26002816'), str('ZST225'))
     myController.connect()
     myController.set_jog_step_size(0.5)
     print('my step size: ', myController.get_jog_step_size())
-    #myController.jog_forward()
-    #print(myController.get_position())
-    #myController.jog_backward()
-    #myController.move_absolute(3)
-    print(myController.get_position())
-    myController.move_absolute(4)
-    #myController.save_this_motor_position()
-    myController.move_absolute(0)
-    myController.move_to_saved_motor_position()
-    myController.move_absolute(0)
+    myController.move_absolute(2.0)
+    print(myController.is_homed())
+    myController.home()
+    print(myController.is_homed())
+    myController.jog_forward()
+    myController.jog_forward()
+    myController.jog_backward()
+    print(myController.is_homed())
+
     myController.disconnect()
+    #CURERNT POS: 5.3664
 
 if __name__ == "__main__":
     main()
