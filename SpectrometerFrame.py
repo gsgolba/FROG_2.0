@@ -178,8 +178,8 @@ class SpectrometerFrame(tk.Frame):
         if self.spec != None:
             try:
                 self.spec.destroy()
-            except:
-                msgbox.showerror('Yikes', 'No spectrometer to disconnect')
+            except: #this should never happen, but just in case
+                print('no spectrometer to destroy')
         
 
 

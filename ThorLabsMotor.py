@@ -11,32 +11,50 @@ from Thorlabs.MotionControl.GenericMotorCLI.ControlParameters import JogParamete
 from Thorlabs.MotionControl.KCube.StepperMotorCLI import *
 from System import Decimal
 
+
 UNIT_CONVERTER = 4.901960784313725
 WAIT_TIME = 1
 class Controller:
     def __init__(self, serial_num, motor_name):
         self.serial_num = serial_num
         self.motor_name = motor_name
-        DeviceManagerCLI.BuildDeviceList()
-        self.controller = KCubeStepper.CreateKCubeStepper(self.serial_num)
+        try:
+            DeviceManagerCLI.BuildDeviceList()
+            print('hey \n', DeviceManagerCLI.GetDeviceList())
+        except:
+            print('Trouble with building device on DeviceManagerCLI')
+            return
+        try:
+            self.controller = KCubeStepper.CreateKCubeStepper(self.serial_num)
+        except:
+            print('Could not make the KCubeStepper motor instance ')
+            self.controller = None
     def connect(self):
-        if not self.controller == None:
+        if self.controller == None:
+            print('no KCubeStepper instance is succesfully created')
+            return
+        else:
             self.controller.Connect(self.serial_num)
             if not self.controller.IsSettingsInitialized():
-                self.controller.WaitForSettingsInitialized(3000)
-            
-            self.controller.StartPolling(50) #send updates to PC, in ms
-            time.sleep(0.1)
+                try:
+                    self.controller.WaitForSettingsInitialized(3000) #wait for the device settings to initialize
+                except:
+                    print('Could not initialize settings')
+            self.controller.StartPolling(50) #send updates to PC, in ms. Basically a way to keep track of device
+            time.sleep(0.5)
             self.controller.EnableDevice()
-            time.sleep(0.1)
-
-        config =  self.controller.LoadMotorConfiguration(self.serial_num, DeviceConfiguration.DeviceSettingsUseOptionType.UseFileSettings)
-        config.DeviceSettingsName = str(self.motor_name)
-        config.UpdateCurrentConfiguration()
-        self.controller.SetSettings(self.controller.MotorDeviceSettings, True, False)
+            time.sleep(0.5)
+            # Call LoadMotorConfiguration on the device to 
+            #   initialize the DeviceUnitConverter object 
+            #   required for real world unit parameters
+            # maybe attempt with the second parameter
+            config =  self.controller.LoadMotorConfiguration(self.serial_num, DeviceConfiguration.DeviceSettingsUseOptionType.UseFileSettings)
+            config.DeviceSettingsName = str(self.motor_name)
+            config.UpdateCurrentConfiguration()
+            self.controller.SetSettings(self.controller.MotorDeviceSettings, True, False)
     def disconnect(self):
         self.controller.StopPolling()
-        self.controller.Disconnect(False)
+        self.controller.Disconnect(True)
     def get_serial_number(self):
         device_info = self.controller.GetDeviceInfo()
         return device_info.SerialNumber

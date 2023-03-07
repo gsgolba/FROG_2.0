@@ -20,8 +20,8 @@ class FROGWindow(tk.Tk):
         self.MotorFrame.grid(row=0,column=1)
 
     def kill_it(self):
-        self.destroy()
         self.SpecFrame.shutdown()
+        self.destroy()
 
 
 
