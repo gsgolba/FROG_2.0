@@ -21,6 +21,7 @@ class FROGWindow(tk.Tk):
 
     def kill_it(self):
         self.SpecFrame.shutdown()
+        self.MotorFrame.disconnect_motor()
         self.destroy()
 
 

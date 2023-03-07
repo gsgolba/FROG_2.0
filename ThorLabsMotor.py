@@ -118,7 +118,7 @@ class Controller:
         
 def main():
     #Below is just code to test whether we can move the motor accordingly
-    myController = Controller(str('26002816'), str('ZST225'))
+    myController = Controller('26002816', 'ZST225')
     myController.connect()
     myController.set_jog_step_size(0.5)
     print('my step size: ', myController.get_jog_step_size())
