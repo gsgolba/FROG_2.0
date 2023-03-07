@@ -8,7 +8,7 @@ Creating an API for spectrometer and motor controller
 * A couple of Python libraries to import:
   * tkinter
   * seabreeze
-    * Note: Installing seeabreeze is a bit tricky on Windows. You'll need to ensure you have Visual Studio and Windows SDK installed
+    * Note: Installing seeabreeze is a bit tricky on Windows. You'll need to ensure you have Visual Studio and Windows SDK installed then restart computer
   * seatease
   * pythonnet
 
