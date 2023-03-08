@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox as msgbox
 import ThorLabsMotor
+import pathlib
 
 SPEED_OF_LIGHT = 3e8
 FEMTO_TO_SEC = 1e-15
@@ -16,6 +17,7 @@ class MotorFrame(tk.Frame):
         self.delay_scan_width = tk.StringVar(self)
         self.jog_size = tk.StringVar(self)
         self.position = tk.StringVar(self)
+        self.saved_position = tk.StringVar(self)
 
 
         #name and serial numer for motor is needed
@@ -61,7 +63,7 @@ class MotorFrame(tk.Frame):
         self.jog_backward_button.grid(row=3,column=3)
 
 
-        self.position_label = tk.Label(self.ControlFrame, text='Current Position')
+        self.position_label = tk.Label(self.ControlFrame, text='Current Position (mm)')
         self.position_label.grid(row=4,column=0)
         self.position_post = tk.Label(self.ControlFrame, text='No position until motor connected')
         self.position_post.grid(row=4,column=1)
@@ -71,8 +73,14 @@ class MotorFrame(tk.Frame):
         self.position_move_entry.bind('<Return>',self.move_to_position)
         self.position_move_entry.grid(row=4,column=3)
 
-        self.test_button = tk.Button(self.ControlFrame,text='test',command=self.test)
-        self.test_button.grid(row=5,column=0)
+        self.move_to_save_button = tk.Button(self.ControlFrame,text='Move to saved position',command=self.move_to_save)
+        self.move_to_save_button.grid(row=5,column=0)
+        self.save_button = tk.Button(self.ControlFrame,text='Save current position',command=self.save_position)
+        self.save_button.grid(row=5,column=1)
+        self.saved_label = tk.Label(self.ControlFrame, text='Current saved position (mm)')
+        self.saved_label.grid(row=5,column=2)
+        self.saved_entry = tk.Label(self.ControlFrame, text='Connect the motor first')
+        self.saved_entry.grid(row=5,column=3)
 
     def test(self):
         self.position_post.config(text='nice')
@@ -84,6 +92,10 @@ class MotorFrame(tk.Frame):
             self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
             self.motor.connect()
             self.motor_status.config(text='Connected')
+            path = pathlib.Path('./saved_motor_position.p')
+            if path.is_file():
+                print('path is indeed file')
+                self.set_save()
             self.refresh_position()
         except:
             msgbox.showerror('yikes','issue with connecting to motor')
@@ -117,6 +129,27 @@ class MotorFrame(tk.Frame):
     def move_to_position(self,event):
         self.motor.move_absolute(float(self.position.get()))
         self.refresh_position()
+    def move_to_save(self):
+        path = pathlib.Path('./saved_motor_position.p')
+        if not path.is_file():
+            msgbox.showerror('Yikes', 'no saved position file in directory')
+        else:
+            try:
+                self.motor.move_to_saved_motor_position()
+                self.refresh_position()
+            except Exception as e:
+                #print(e)
+                msgbox.showerror('yikes','could not move to saved positon')
+    def save_position(self):
+        try:
+            self.motor.save_this_motor_position()
+            self.set_save()
+        except:
+            msgbox.showerror('yikes','could not save position')
+    def set_save(self):
+            self.saved_entry.config(text=self.motor.get_saved_position())
+
+
 
 
 

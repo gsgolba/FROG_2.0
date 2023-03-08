@@ -7,21 +7,19 @@ import timeit
 from PIL import ImageTk, Image
 import SpectrometerFrame
 import MotorFrame
+import FROGFrame
+
 
 class FROGWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.CreateCtrls()
     def CreateCtrls(self):
-        #Spectrometer
-        self.SpecFrame = SpectrometerFrame.SpectrometerFrame(self)
-        self.SpecFrame.grid(row=0,column=0)
-        self.MotorFrame = MotorFrame.MotorFrame(self)
-        self.MotorFrame.grid(row=0,column=1)
+        self.FROGFrame = FROGFrame.FROGFrame(self)
+        self.FROGFrame.grid(row=0,column=0)
 
     def kill_it(self):
-        self.SpecFrame.shutdown()
-        self.MotorFrame.disconnect_motor()
+        self.FROGFrame.shutdown()
         self.destroy()
 
 

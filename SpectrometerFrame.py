@@ -31,6 +31,7 @@ class SpectrometerFrame(tk.Frame):
         self.I_vs_wave = self.spectral_figure.add_subplot()
         self.I_vs_wave.set_xlabel('Wavelength (nm)')
         self.I_vs_wave.set_ylabel('Intensity (a.u.)')
+        self.I_vs_wave.set_title('Spectrometer Reading')
         self.I_vs_wave.grid(True)
 
         self.spectral_canvas = FigureCanvasTkAgg(self.spectral_figure, self)
@@ -141,6 +142,7 @@ class SpectrometerFrame(tk.Frame):
             self.I_vs_wave.plot(wavelengths,intensities)
             self.I_vs_wave.set_xlabel('Wavelength (nm)')
             self.I_vs_wave.set_ylabel('Intensity (a.u.)')
+            self.I_vs_wave.set_title('Spectrometer Reading')
             self.I_vs_wave.grid(True)
 
             #remake bounds

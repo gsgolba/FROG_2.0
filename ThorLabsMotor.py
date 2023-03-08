@@ -105,13 +105,13 @@ class Controller:
         we edit this file each time to save a new position
         if we want to save multiple positions,
             just add more files, or have it be a list in a single file
+        CURRENTLY ONLY KEEPS ONE SAVED POSITION
         '''
         with open('saved_motor_position.p', 'wb') as f:
             pickle.dump(self.get_position(),f)
     def move_to_saved_motor_position(self):
         with open('saved_motor_position.p', 'rb') as f:
             self.move_absolute(pickle.load(f))
-            self.wait()
     def get_saved_position(self):
         with open('saved_motor_position.p', 'rb') as f:
             return str(pickle.load(f))
