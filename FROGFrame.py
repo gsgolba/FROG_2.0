@@ -10,6 +10,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 import MotorFrame
 import SpectrometerFrame
+import time
 
 class FROGFrame(tk.Frame):
     def __init__(self, parent):
@@ -48,7 +49,9 @@ class FROGFrame(tk.Frame):
             counter = 0
             step_size = float(self.MotorFrame.step_size.get())
             scan_width = float(self.MotorFrame.delay_scan_width.get())
+            wavelengths = self.SpecFrame.spec.get_wavelengths()
             steps = int(scan_width / step_size)
+            print('number of steps', 2*steps + 1)
             self.FROG_matrix = np.zeros((len(self.SpecFrame.spec.get_wavelengths()), 2*steps + 1)) #initialize matrix for data storage
             self.im = self.FROG_plot.imshow(self.FROG_matrix)
             self.MotorFrame.move_to_save() #go to time 0
@@ -56,13 +59,23 @@ class FROGFrame(tk.Frame):
             while counter < 2*steps + 1:
                 self.FROG_plot.clear() #clear previous plot from memory
                 self.FROG_matrix[:, counter] = self.SpecFrame.spec.get_intensities() #entire new column of intensity data
-                self.im.set_data(self.FROG_matrix)
-                self.im.autoscale()
+                time.sleep(int(self.SpecFrame.integration_var.get())*(10**-3)) 
+                #time.sleep(2)
+                #wait to ensure our net time stpe will grab a different integration from spectrometer
+                
+                #remake from graph with new data
+                #self.im.set_data(self.FROG_matrix)
+                #self.im.autoscale()
+                #self.FROG_canvas.draw()
+                self.im = self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-scan_width,scan_width, wavelengths[-1], wavelengths[0]])
                 self.FROG_canvas.draw()
+                self.FROG_subframe.update()
                 self.MotorFrame.motor.move_relative(step_size) #move to next step
                 counter +=1
                 print(counter)
             self.MotorFrame.motor.move_relative(-step_size) #go back one step
+            self.FROG_plot.set_ylabel('Wavelength (nm)')
+            self.FROG_plot.set_xlabel('Delay (fs)')
             print('FROG done')
 
 

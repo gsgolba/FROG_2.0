@@ -10,7 +10,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 import spectrometer
 import time
-
+DEFAULT_INTEGRATION_TIME = 100 #in ms
 button_padding = {'padx': 2, 'pady': 2}
 
 class SpectrometerFrame(tk.Frame):
@@ -24,6 +24,7 @@ class SpectrometerFrame(tk.Frame):
         self.max_intense_var = tk.StringVar(self)
         self.min_intense_var = tk.StringVar(self)
         self.integration_var = tk.StringVar(self)
+        self.integration_var.set(str(DEFAULT_INTEGRATION_TIME))
         self.spectral_cancel_id = None
 
         #figure
@@ -93,12 +94,15 @@ class SpectrometerFrame(tk.Frame):
     def connect_virtual(self):
         try:
             self.spec = spectrometer.Virtual_Spectrometer()
+            self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME) 
+            #not sure of initial time, so I set it to something known
             print(self.spec)
         except:
             msgbox.showerror('Yikes', 'Could not connect virtual spectrometer')
     def connect_real(self):
         try:
             self.spec = spectrometer.Spectrometer()
+            self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME)
             print(self.spec)
         except:
             msgbox.showerror('Yikes', 'Could not connect real spectrometer')

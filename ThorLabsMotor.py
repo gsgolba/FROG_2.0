@@ -118,18 +118,18 @@ class Controller:
         
 def main():
     #Below is just code to test whether we can move the motor accordingly
-    myController = Controller('26002816', 'ZST225')
+    myController = Controller('26005057', 'ZST225')
     myController.connect()
     myController.set_jog_step_size(0.5)
     print('my step size: ', myController.get_jog_step_size())
-    myController.move_absolute(2.0)
+    #myController.move_absolute(2.0)
     print(myController.is_homed())
-    myController.home()
-    print(myController.is_homed())
-    myController.jog_forward()
-    myController.jog_forward()
-    myController.jog_backward()
-    print(myController.is_homed())
+    #myController.home()
+    #print(myController.is_homed())
+    #myController.jog_forward()
+    #myController.jog_forward()
+    #myController.jog_backward()
+    #print(myController.is_homed())
 
     myController.disconnect()
     #CURERNT POS: 5.3664
