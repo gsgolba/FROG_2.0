@@ -77,11 +77,13 @@ class FROGFrame(tk.Frame):
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
                 self.MotorFrame.motor.move_relative(self.step_size) #move to next step
+                self.MotorFrame.refresh_position()
                 counter +=1
                 if counter == 2*self.steps - 1:
                     print(self.SpecFrame.spec.get_intensities())
                 print(counter)
             self.MotorFrame.motor.move_relative(-self.step_size) #go back one step
+            self.MotorFrame.refresh_position()
             self.FROG_plot.set_ylabel('Wavelength (nm)')
             self.FROG_plot.set_xlabel('Delay (fs)')
             self.FROG_measurement = True
