@@ -6,7 +6,7 @@ import pathlib
 SPEED_OF_LIGHT = 3e8
 FEMTO_TO_SEC = 1e-15
 METERS_TO_MILLI = 1e3
-FEMTO_TO_MILLI = SPEED_OF_LIGHT * FEMTO_TO_SEC * METERS_TO_MILLI / 2 #use later for conversion
+FEMTO_TO_MILLI = SPEED_OF_LIGHT * FEMTO_TO_SEC * METERS_TO_MILLI #use later for conversion
 
 class MotorFrame(tk.Frame):
     def __init__(self,parent):
@@ -63,15 +63,17 @@ class MotorFrame(tk.Frame):
         self.jog_backward_button.grid(row=3,column=3)
 
 
-        self.position_label = tk.Label(self.ControlFrame, text='Current Position (mm)')
+        self.position_label = tk.Label(self.ControlFrame, text='Current Position (mm and fs)')
         self.position_label.grid(row=4,column=0)
         self.position_post = tk.Label(self.ControlFrame, text='No position until motor connected')
         self.position_post.grid(row=4,column=1)
+        self.position_post_fs = tk.Label(self.ControlFrame, text='No position until motor connected')
+        self.position_post_fs.grid(row=4,column=2)
         self.position_move_label = tk.Label(self.ControlFrame,text= 'Move to Position')
-        self.position_move_label.grid(row=4,column=2)
+        self.position_move_label.grid(row=4,column=3)
         self.position_move_entry = tk.Entry(self.ControlFrame, textvariable=self.position)
         self.position_move_entry.bind('<Return>',self.move_to_position)
-        self.position_move_entry.grid(row=4,column=3)
+        self.position_move_entry.grid(row=4,column=4)
 
         self.move_to_save_button = tk.Button(self.ControlFrame,text='Move to saved position',command=self.move_to_save)
         self.move_to_save_button.grid(row=5,column=0)
@@ -82,20 +84,20 @@ class MotorFrame(tk.Frame):
         self.saved_entry = tk.Label(self.ControlFrame, text='Connect the motor first')
         self.saved_entry.grid(row=5,column=3)
 
-    def test(self):
-        self.position_post.config(text='nice')
+
     def refresh_position(self):
-        self.position_post.config(text=str(self.motor.get_position()))
+        self.position_post.config(text="{:.5f}".format(self.motor.get_position()))
+        self.position_post_fs.config(text="{:.5f}".format(self.motor.get_position() / FEMTO_TO_MILLI))
     def connect_motor(self):
         #can improve by letting the user define the motor serial number and name
         try:
-            self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
-            #self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
+            #self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
+            self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
             self.motor.connect()
             self.motor_status.config(text='Connected')
             path = pathlib.Path('./saved_motor_position.p')
             if path.is_file():
-                print('path is indeed file')
+                #print('path is indeed file')
                 self.set_save()
             self.refresh_position()
         except:

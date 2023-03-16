@@ -56,8 +56,8 @@ class FROGFrame(tk.Frame):
             msgbox.showerror('yikes','make sure a motor and spectrometer are connected')
         else:
             counter = 0
-            self.step_size = float(self.MotorFrame.step_size.get())
-            self.scan_width = float(self.MotorFrame.delay_scan_width.get())
+            self.step_size = float(self.MotorFrame.step_size.get()) * FEMTO_TO_MILLI
+            self.scan_width = float(self.MotorFrame.delay_scan_width.get()) * FEMTO_TO_MILLI
             #what if they are not multiples of one another
             self.wavelengths = self.SpecFrame.spec.get_wavelengths()
             self.steps = int(self.scan_width / self.step_size)
@@ -66,6 +66,7 @@ class FROGFrame(tk.Frame):
             self.im = self.FROG_plot.imshow(self.FROG_matrix)
             self.MotorFrame.move_to_save() #go to time 0
             self.MotorFrame.motor.move_relative(-self.scan_width) #go to the very back of the scan to start
+            self.MotorFrame.refresh_position()
             while counter < 2*self.steps + 1:
                 self.FROG_plot.clear() #clear previous plot from memory
                 intensity = self.SpecFrame.spec.get_intensities()
@@ -78,7 +79,7 @@ class FROGFrame(tk.Frame):
                 #self.im.set_data(self.FROG_matrix)
                 #self.im.autoscale()
                 #self.FROG_canvas.draw()
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-self.scan_width,self.scan_width, self.wavelengths[-1], self.wavelengths[0]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[-1], self.wavelengths[0]])
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
                 self.MotorFrame.motor.move_relative(self.step_size) #move to next step
@@ -100,7 +101,7 @@ class FROGFrame(tk.Frame):
                 transposed_dark_frame = self.SpecFrame.background[:, np.newaxis]
                 self.FROG_matrix = self.FROG_matrix - transposed_dark_frame
                 self.FROG_matrix = np.where(self.FROG_matrix < 0, 0, self.FROG_matrix)
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-self.scan_width,self.scan_width, self.wavelengths[-1], self.wavelengths[0]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[-1], self.wavelengths[0]])
                 self.FROG_plot.set_ylabel('Wavelength (nm)')
                 self.FROG_plot.set_xlabel('Delay (fs)')
                 self.FROG_canvas.draw()
@@ -121,7 +122,7 @@ class FROGFrame(tk.Frame):
             #number of wavelength points
             f.write(str(len(self.wavelengths)) + '\n')
             #Delay Step size
-            f.write(str(self.step_size) + '\n')
+            f.write(str(float(self.MotorFrame.step_size.get())) + '\n')
             #Wavelength step size
             wave_range = self.wavelengths[-1] - self.wavelengths[0]
             wave_step = wave_range / len(self.wavelengths)
