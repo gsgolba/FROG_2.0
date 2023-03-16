@@ -26,6 +26,8 @@ class SpectrometerFrame(tk.Frame):
         self.integration_var = tk.StringVar(self)
         self.integration_var.set(str(DEFAULT_INTEGRATION_TIME))
         self.spectral_cancel_id = None
+        self.background = None
+        self.dark_measurement = False
 
         #figure
         self.spectral_figure = plt.figure(figsize=(5,5))
@@ -95,6 +97,7 @@ class SpectrometerFrame(tk.Frame):
         try:
             self.spec = spectrometer.Virtual_Spectrometer()
             self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME) 
+            self.background_frame()
             #not sure of initial time, so I set it to something known
             print(self.spec)
         except:
@@ -103,6 +106,7 @@ class SpectrometerFrame(tk.Frame):
         try:
             self.spec = spectrometer.Spectrometer()
             self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME)
+            self.background_frame()
             print(self.spec)
         except:
             msgbox.showerror('Yikes', 'Could not connect real spectrometer')
@@ -133,9 +137,22 @@ class SpectrometerFrame(tk.Frame):
     def set_integration_length(self,event):
         if self.spec != None:
             self.spec.change_integration_time(self.integration_entry.get())
+            self.background_frame()
             #and need backgorund subtraction?
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected to change integration length')
+    def background_frame(self):
+        try:
+            answer = msgbox.askyesno(title='Warning', message='Will measure new dark frame, is the beam blocked?')
+            if answer:
+                self.dark_measurement = True
+                self.background = np.array(self.spec.get_intensities())
+                print('background',self.background)
+            else:
+                msgbox.showinfo(message='Will not take new background')
+        except:
+            msgbox.showerror('yikes','Background inquiry failed')
+            
     def graph_spectrum(self):
         if self.spec != None:
             #clear previous frame, 

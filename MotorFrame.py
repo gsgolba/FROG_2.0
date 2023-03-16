@@ -87,10 +87,10 @@ class MotorFrame(tk.Frame):
     def refresh_position(self):
         self.position_post.config(text=str(self.motor.get_position()))
     def connect_motor(self):
-        #improve by letting the user define the motor serial number and name
+        #can improve by letting the user define the motor serial number and name
         try:
-            #self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
-            self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
+            self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
+            #self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
             self.motor.connect()
             self.motor_status.config(text='Connected')
             path = pathlib.Path('./saved_motor_position.p')

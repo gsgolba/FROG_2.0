@@ -18,7 +18,6 @@ class FROGFrame(tk.Frame):
         tk.Frame.__init__(self,parent, highlightbackground='green', highlightthickness=2)
         #initial variables
         self.FROG_measurement = False
-        self.dark_measurement = False
 
         #other classes I implemented
         self.SpecFrame = SpectrometerFrame.SpectrometerFrame(self)
@@ -38,12 +37,14 @@ class FROGFrame(tk.Frame):
 
         self.FROG_canvas = FigureCanvasTkAgg(self.FROG_figure, self.FROG_subframe)
         self.FROG_canvas.draw()
-        self.FROG_canvas.get_tk_widget().grid(row=0,column=0,columnspan=2)
+        self.FROG_canvas.get_tk_widget().grid(row=0,column=0,columnspan=3)
 
         self.FROG_button = tk.Button(self.FROG_subframe, text='FROG', command=self.FROG)
         self.FROG_button.grid(row=1,column=0)
-        self.test_button = tk.Button(self.FROG_subframe, text='save FROG', command=self.saveFROG)
-        self.test_button.grid(row=1,column=1)
+        self.save_button = tk.Button(self.FROG_subframe, text='save FROG', command=self.saveFROG)
+        self.save_button.grid(row=1,column=1)
+        self.background_adjust_button = tk.Button(self.FROG_subframe,text='Adjust with background', command=self.backgroundAdjust)
+        self.background_adjust_button.grid(row=1,column=2)
 
     def FROG(self):
         if self.MotorFrame.step_size.get() == '' or self.MotorFrame.delay_scan_width.get() == '':
@@ -64,7 +65,8 @@ class FROGFrame(tk.Frame):
             self.MotorFrame.motor.move_relative(-self.scan_width) #go to the very back of the scan to start
             while counter < 2*self.steps + 1:
                 self.FROG_plot.clear() #clear previous plot from memory
-                self.FROG_matrix[:, counter] = self.SpecFrame.spec.get_intensities() #entire new column of intensity data
+                intensity = self.SpecFrame.spec.get_intensities()
+                self.FROG_matrix[:, counter] = intensity #entire new column of intensity data
                 time.sleep(int(self.SpecFrame.integration_var.get())*(10**-3)) 
                 #time.sleep(2)
                 #wait to ensure our net time step will grab a different integration from spectrometer
@@ -73,15 +75,15 @@ class FROGFrame(tk.Frame):
                 #self.im.set_data(self.FROG_matrix)
                 #self.im.autoscale()
                 #self.FROG_canvas.draw()
-                self.im = self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-self.scan_width,self.scan_width, self.wavelengths[-1], self.wavelengths[0]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-self.scan_width,self.scan_width, self.wavelengths[-1], self.wavelengths[0]])
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
                 self.MotorFrame.motor.move_relative(self.step_size) #move to next step
                 self.MotorFrame.refresh_position()
                 counter +=1
                 if counter == 2*self.steps - 1:
-                    print(self.SpecFrame.spec.get_intensities())
-                print(counter)
+                    print('last frog reading', intensity)
+                print('FROG step',counter)
             self.MotorFrame.motor.move_relative(-self.step_size) #go back one step
             self.MotorFrame.refresh_position()
             self.FROG_plot.set_ylabel('Wavelength (nm)')
@@ -89,8 +91,20 @@ class FROGFrame(tk.Frame):
             self.FROG_measurement = True
             print('FROG done')
 
-    def darkFrame(self):
-        print('nice')
+    def backgroundAdjust(self):
+        if self.FROG_measurement and self.SpecFrame.dark_measurement:
+            try:
+                transposed_dark_frame = self.SpecFrame.background[:, np.newaxis]
+                self.FROG_matrix = self.FROG_matrix - transposed_dark_frame
+                self.FROG_matrix = np.where(self.FROG_matrix < 0, 0, self.FROG_matrix)
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-self.scan_width,self.scan_width, self.wavelengths[-1], self.wavelengths[0]])
+                self.FROG_plot.set_ylabel('Wavelength (nm)')
+                self.FROG_plot.set_xlabel('Delay (fs)')
+                self.FROG_canvas.draw()
+            except:
+                msgbox.showerror('yike','Issue wih adjusting')
+        else:
+            msgbox.showerror('yikes','Either no FROG measurement or no backgorund has been taken')
 
     def saveFROG(self):
         if not self.FROG_measurement:
