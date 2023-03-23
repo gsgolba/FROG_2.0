@@ -6,6 +6,7 @@ import matplotlib
 from pyparsing import col
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
 NavigationToolbar2Tk)
 import spectrometer
@@ -136,7 +137,8 @@ class SpectrometerFrame(tk.Frame):
         self.spectral_canvas.draw()
     def set_integration_length(self,event):
         if self.spec != None:
-            self.spec.change_integration_time(self.integration_entry.get())
+            self.stop_graphing()
+            self.spec.change_integration_time(int(self.integration_var.get()))
             self.background_frame()
             #and need backgorund subtraction?
         else:
@@ -152,8 +154,43 @@ class SpectrometerFrame(tk.Frame):
                 msgbox.showinfo(message='Will not take new background')
         except:
             msgbox.showerror('yikes','Background inquiry failed')
-            
+
     def graph_spectrum(self):
+        ani = animation.FuncAnimation(self.spectral_figure, self.graph_spectrum1,interval=500,frames=20)
+
+    def graph_spectrum1(self,i):
+        if self.spec != None:
+            #clear previous frame, 
+            #   otherwise it'll be behind the next plot 
+            #   and take up lots memory
+            self.I_vs_wave.clear()
+            wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
+            self.I_vs_wave.plot(wavelengths,intensities)
+            self.I_vs_wave.set_xlabel('Wavelength (nm)')
+            self.I_vs_wave.set_ylabel('Intensity (a.u.)')
+            self.I_vs_wave.set_title('Spectrometer Reading')
+            self.I_vs_wave.grid(True)
+
+            #remake bounds
+            left,right = self.I_vs_wave.get_xlim()
+            down,up = self.I_vs_wave.get_ylim()
+            if self.min_wave_var.get() != '':
+                left = int(self.min_wave_var.get())
+                self.I_vs_wave.set_xlim([left,right])
+            if self.max_wave_var.get() != '':
+                self.I_vs_wave.set_xlim([left,int(self.max_wave_var.get())])
+            if self.min_intense_var.get() != '':
+                down = int(self.min_intense_var.get())
+                self.I_vs_wave.set_ylim([down,up])
+            if self.max_intense_var.get() != '':
+                self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
+            
+            #self.spectral_canvas.draw()
+
+        else:
+            msgbox.showerror('Yikes', 'No spectrometer connected')
+        
+    def graph_spectrum2(self):
         if self.spec != None:
             #clear previous frame, 
             #   otherwise it'll be behind the next plot 
@@ -183,7 +220,7 @@ class SpectrometerFrame(tk.Frame):
             self.spectral_canvas.draw()
             
             #keep repeating this function
-            self.spectral_cancel_id = self.after(1,self.graph_spectrum)
+            self.spectral_cancel_id = self.after(int(self.integration_var.get()),self.graph_spectrum)
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
@@ -192,7 +229,7 @@ class SpectrometerFrame(tk.Frame):
             self.after_cancel(self.spectral_cancel_id)
             self.spectral_cancel_id = None
         else:
-            msgbox.showerror('Yikes','No graph to stop')
+            print('No graph to stop')
 
 
 
