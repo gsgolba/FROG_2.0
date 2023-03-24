@@ -11,6 +11,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 import spectrometer
 import time
+import threading
 DEFAULT_INTEGRATION_TIME = 100 #in ms
 button_padding = {'padx': 2, 'pady': 2}
 
@@ -156,35 +157,41 @@ class SpectrometerFrame(tk.Frame):
 
     def graph_spectrum(self):
         ani = animation.FuncAnimation(self.spectral_figure, self.graph_spectrum1,interval=500,frames=20)
-
-    def graph_spectrum1(self,i):
+    def threading_start(self):
+        print('starting thread')
+        thread = threading.Thread(target=self.graph_spectrum1, daemon=True)
+        thread.start()
+        print('thread is started')
+    def graph_spectrum1(self):
         if self.spec != None:
             #clear previous frame, 
             #   otherwise it'll be behind the next plot 
             #   and take up lots memory
-            self.I_vs_wave.clear()
-            wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
-            self.I_vs_wave.plot(wavelengths,intensities)
-            self.I_vs_wave.set_xlabel('Wavelength (nm)')
-            self.I_vs_wave.set_ylabel('Intensity (a.u.)')
-            self.I_vs_wave.set_title('Spectrometer Reading')
-            self.I_vs_wave.grid(True)
+            while(True):
+                print('plotting')
+                self.I_vs_wave.clear()
+                wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
+                self.I_vs_wave.plot(wavelengths,intensities)
+                self.I_vs_wave.set_xlabel('Wavelength (nm)')
+                self.I_vs_wave.set_ylabel('Intensity (a.u.)')
+                self.I_vs_wave.set_title('Spectrometer Reading')
+                self.I_vs_wave.grid(True)
 
-            #remake bounds
-            left,right = self.I_vs_wave.get_xlim()
-            down,up = self.I_vs_wave.get_ylim()
-            if self.min_wave_var.get() != '':
-                left = int(self.min_wave_var.get())
-                self.I_vs_wave.set_xlim([left,right])
-            if self.max_wave_var.get() != '':
-                self.I_vs_wave.set_xlim([left,int(self.max_wave_var.get())])
-            if self.min_intense_var.get() != '':
-                down = int(self.min_intense_var.get())
-                self.I_vs_wave.set_ylim([down,up])
-            if self.max_intense_var.get() != '':
-                self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
-            
-            #self.spectral_canvas.draw()
+                #remake bounds
+                left,right = self.I_vs_wave.get_xlim()
+                down,up = self.I_vs_wave.get_ylim()
+                if self.min_wave_var.get() != '':
+                    left = int(self.min_wave_var.get())
+                    self.I_vs_wave.set_xlim([left,right])
+                if self.max_wave_var.get() != '':
+                    self.I_vs_wave.set_xlim([left,int(self.max_wave_var.get())])
+                if self.min_intense_var.get() != '':
+                    down = int(self.min_intense_var.get())
+                    self.I_vs_wave.set_ylim([down,up])
+                if self.max_intense_var.get() != '':
+                    self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
+                
+                self.spectral_canvas.draw()
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
@@ -219,7 +226,7 @@ class SpectrometerFrame(tk.Frame):
             self.spectral_canvas.draw()
             
             #keep repeating this function
-            self.spectral_cancel_id = self.after(1,self.graph_spectrum2)
+            self.spectral_cancel_id = self.after(int(self.integration_var.get()),self.graph_spectrum2)
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
