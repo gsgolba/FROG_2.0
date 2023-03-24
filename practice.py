@@ -11,6 +11,7 @@ plt.rcParams["figure.figsize"] = [7.00, 3.50]
 plt.rcParams["figure.autolayout"] = True
 
 spec = spectrometer.Virtual_Spectrometer()
+spec.change_integration_time(1000)
 #print(spec)
 #print(spec.get_both())
 
@@ -38,18 +39,24 @@ button.pack(side=tkinter.BOTTOM)
 toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
-motorFrame = tkinter.Frame(root)
-motorFrame.pack(side=tkinter.LEFT)
-button = tkinter.Button(motorFrame, text='connect motor', command=motor_connect)
+class MotorFrame(tkinter.Frame):
+    def __init__(self,parent):
+        tkinter.Frame.__init__(self,parent)
+        button = tkinter.Button(self, text='connect motor', command=self.motor_connect)
+        button.pack(side=tkinter.TOP)
+    def motor_connect(self):
+        print('connecting...')
+        motor = ThorLabsMotor.Controller('26002816', 'ZST225')
+        motor.connect()
+        motor.jog_forward()
+        motor.jog_backward()
+        print('disconnecting...')
+        motor.disconnect()
 
-def motor_connect():
-    print('connecting...')
-    motor = ThorLabsMotor.Controller('26002816', 'ZST225')
-    motor.connect()
-    motor.jog_forward()
-    motor.jog_backward()
-    print('disconnecting...')
-    motor.disconnect()
+
+motorFrame = MotorFrame(root)
+motorFrame.pack(side=tkinter.RIGHT)
+
 def init():
     line.set_data([], [])
     return line,

@@ -201,9 +201,11 @@ class SpectrometerFrame(tk.Frame):
             #clear previous frame, 
             #   otherwise it'll be behind the next plot 
             #   and take up lots memory
-            self.I_vs_wave.clear()
+            #self.I_vs_wave.clear()
             wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
-            self.I_vs_wave.plot(wavelengths,intensities)
+            #self.I_vs_wave.plot(wavelengths,intensities)
+            self.I_vs_wave.draw()
+            '''
             self.I_vs_wave.set_xlabel('Wavelength (nm)')
             self.I_vs_wave.set_ylabel('Intensity (a.u.)')
             self.I_vs_wave.set_title('Spectrometer Reading')
@@ -222,7 +224,7 @@ class SpectrometerFrame(tk.Frame):
                 self.I_vs_wave.set_ylim([down,up])
             if self.max_intense_var.get() != '':
                 self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
-            
+            '''
             self.spectral_canvas.draw()
             
             #keep repeating this function
