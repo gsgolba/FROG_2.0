@@ -5,13 +5,14 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib import pyplot as plt, animation
 import numpy as np
 import spectrometer
+import ThorLabsMotor
 
 plt.rcParams["figure.figsize"] = [7.00, 3.50]
 plt.rcParams["figure.autolayout"] = True
 
 spec = spectrometer.Virtual_Spectrometer()
-print(spec)
-print(spec.get_both())
+#print(spec)
+#print(spec.get_both())
 
 root = tkinter.Tk()
 root.wm_title("Embedding in Tk")
@@ -37,6 +38,18 @@ button.pack(side=tkinter.BOTTOM)
 toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
+motorFrame = tkinter.Frame(root)
+motorFrame.pack(side=tkinter.LEFT)
+button = tkinter.Button(motorFrame, text='connect motor', command=motor_connect)
+
+def motor_connect():
+    print('connecting...')
+    motor = ThorLabsMotor.Controller('26002816', 'ZST225')
+    motor.connect()
+    motor.jog_forward()
+    motor.jog_backward()
+    print('disconnecting...')
+    motor.disconnect()
 def init():
     line.set_data([], [])
     return line,

@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox as msgbox
-import ThorLabsMotor
+#import ThorLabsMotor
 import pathlib
 
 SPEED_OF_LIGHT = 3e8

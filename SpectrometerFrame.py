@@ -84,7 +84,7 @@ class SpectrometerFrame(tk.Frame):
         self.integration_label = tk.Label(self.ControlFrame, text='Integration time (ms)')
         self.integration_label.grid(column=0,row=5)
 
-        self.graph_button = tk.Button(self.ControlFrame, text='Graph Spectrum!', command=self.graph_spectrum)
+        self.graph_button = tk.Button(self.ControlFrame, text='Graph Spectrum!', command=self.graph_spectrum2)
         self.graph_button.grid(row=6,column=0)
         self.stop_button = tk.Button(self.ControlFrame,text='Stop Graphing', command=self.stop_graphing)
         self.stop_button.grid(row=6,column=1)
@@ -137,7 +137,6 @@ class SpectrometerFrame(tk.Frame):
         self.spectral_canvas.draw()
     def set_integration_length(self,event):
         if self.spec != None:
-            self.stop_graphing()
             self.spec.change_integration_time(int(self.integration_var.get()))
             self.background_frame()
             #and need backgorund subtraction?
@@ -220,7 +219,7 @@ class SpectrometerFrame(tk.Frame):
             self.spectral_canvas.draw()
             
             #keep repeating this function
-            self.spectral_cancel_id = self.after(int(self.integration_var.get()),self.graph_spectrum)
+            self.spectral_cancel_id = self.after(1,self.graph_spectrum2)
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
