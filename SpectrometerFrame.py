@@ -238,6 +238,20 @@ class SpectrometerFrame(tk.Frame):
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
+    def update_spectrum(self, wavelengths, intensities):
+        if self.spec != None:
+            #clear previous frame, 
+            #   otherwise it'll be behind the next plot 
+            #   and take up lots memory
+            #self.I_vs_wave.clear()
+            line1, = self.I_vs_wave.plot(wavelengths, intensities, 'g-')
+            self.spectral_figure.canvas.draw()
+
+            self.spectral_canvas.draw()
+            line1.remove()
+        else:
+            msgbox.showerror('Yikes', 'No spectrometer connected')
+            
     def stop_graphing(self):
         if self.spectral_cancel_id != None:
             self.after_cancel(self.spectral_cancel_id)

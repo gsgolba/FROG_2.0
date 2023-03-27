@@ -70,7 +70,8 @@ class Controller:
         self.controller.Home(MOVE_WAIT_TIME)
     def move_relative(self, dis):
         #print('do relative move')
-        self.controller.SetMoveRelativeDistance(Decimal(dis))
+        print('distance ', dis, ' converted to ', dis*UNIT_CONVERTER, ' decimal giving ', Decimal(dis*UNIT_CONVERTER))
+        self.controller.SetMoveRelativeDistance(Decimal(dis*UNIT_CONVERTER))
         self.controller.MoveRelative(MOVE_WAIT_TIME)
     def move_absolute(self, pos):
         #print('moving device to ', Decimal(pos))
@@ -80,7 +81,7 @@ class Controller:
         self.controller.DisableDevice()
     def set_jog_step_size(self, step_size):
         jog_params = self.controller.GetJogParams()
-        jog_params.StepSize = Decimal(step_size)
+        jog_params.StepSize = Decimal(step_size*UNIT_CONVERTER)
         jog_params.JogMode = JogParametersBase.JogModes.SingleStep
         self.controller.SetJogParams(jog_params)
     def get_jog_step_size(self):
@@ -118,9 +119,12 @@ class Controller:
         
 def main():
     #Below is just code to test whether we can move the motor accordingly
-    myController = Controller('26005057', 'ZST225')
+    myController = Controller('26004024', 'ZST225')
     myController.connect()
     myController.set_jog_step_size(0.5)
+    myController.move_absolute(10.0)
+    myController.move_relative(0.5)
+
     print('my step size: ', myController.get_jog_step_size())
     #myController.move_absolute(2.0)
     print(myController.is_homed())

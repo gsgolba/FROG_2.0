@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox as msgbox
-#import ThorLabsMotor
+import ThorLabsMotor
 import pathlib
 
 SPEED_OF_LIGHT = 3e8
@@ -91,9 +91,11 @@ class MotorFrame(tk.Frame):
     def connect_motor(self):
         #can improve by letting the user define the motor serial number and name
         try:
-            self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
+            #self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
+            self.motor = ThorLabsMotor.Controller('26004024', 'ZST225')
             #self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
             self.motor.connect()
+            print('motor connected')
             self.motor_status.config(text='Connected')
             path = pathlib.Path('./saved_motor_position.p')
             if path.is_file():
@@ -101,6 +103,7 @@ class MotorFrame(tk.Frame):
                 self.set_save()
             self.refresh_position()
         except:
+            
             msgbox.showerror('yikes','issue with connecting to motor')
     def disconnect_motor(self):
         try:

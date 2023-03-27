@@ -64,21 +64,22 @@ class FROGFrame(tk.Frame):
                 #find the nearest index for wavelength that specifed by user
             self.wavelengths = self.SpecFrame.spec.get_wavelengths()
             if self.SpecFrame.min_wave_var.get == '':
-                self.min_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.min_wave_var.get()))
-            else:
                 self.min_wave_idx = 0
-            if self.SpecFrame.max_wave_var.get() == '':
-                self.max_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.max_wave_var.get()))
             else:
+                self.min_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.min_wave_var.get()))
+            if self.SpecFrame.max_wave_var.get() == '':
                 self.max_wave_idx = len(self.wavelengths) - 1
+            else:
+                self.max_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.max_wave_var.get()))
 
             self.steps = int(self.scan_width / self.step_size)
-            print('number of steps', 2*self.steps + 1)
-            self.FROG_matrix = np.zeros(self.max_wave_idx - self.min_wave_idx, 2*self.steps + 1) #initialize matrix for data storage
+            print('number of steps', 2*self.steps + 1, ' step_size ', self.step_size, ' width', self.scan_width)
+            self.FROG_matrix = np.zeros((self.max_wave_idx - self.min_wave_idx, 2*self.steps + 1)) #initialize matrix for data storage
             self.im = self.FROG_plot.imshow(self.FROG_matrix)
-            self.MotorFrame.move_to_save() #go to time 0
+            #self.MotorFrame.move_to_save() #go to time 0
             self.MotorFrame.motor.move_relative(-self.scan_width) #go to the very back of the scan to start
             self.MotorFrame.refresh_position()
+            self.SpecFrame.stop_graphing()
             while counter < 2*self.steps + 1:
                 self.FROG_plot.clear() #clear previous plot from memory
                 intensity = self.SpecFrame.spec.get_intensities()
@@ -94,10 +95,11 @@ class FROGFrame(tk.Frame):
                 self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]])
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
+                self.SpecFrame.update_spectrum(self.wavelengths,intensity)
                 self.MotorFrame.motor.move_relative(self.step_size) #move to next step
                 self.MotorFrame.refresh_position()
                 counter +=1
-                if counter == 2*self.steps - 1:
+                if counter == 2*self.steps + 1:
                     print('last frog reading', intensity[self.min_wave_idx:self.max_wave_idx])
                 print('FROG step',counter)
             self.MotorFrame.motor.move_relative(-self.step_size) #go back one step
@@ -107,7 +109,7 @@ class FROGFrame(tk.Frame):
             self.FROG_measurement = True
             print('FROG done')
 
-    def find_nearest(array, value):
+    def find_nearest(self,array, value):
         #can defintely optimize since we have an ordered list
         array = np.asarray(array)
         idx = (np.abs(array - value)).argmin()
