@@ -58,11 +58,23 @@ class FROGFrame(tk.Frame):
             counter = 0
             self.step_size = float(self.MotorFrame.step_size.get()) * FEMTO_TO_MILLI
             self.scan_width = float(self.MotorFrame.delay_scan_width.get()) * FEMTO_TO_MILLI
-            #what if they are not multiples of one another
+            #what if they are not multiples of one another?
+
+            #only take wavelengths specified by user,
+                #find the nearest index for wavelength that specifed by user
             self.wavelengths = self.SpecFrame.spec.get_wavelengths()
+            if self.SpecFrame.min_wave_var.get == '':
+                self.min_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.min_wave_var.get()))
+            else:
+                self.min_wave_idx = 0
+            if self.SpecFrame.max_wave_var.get() == '':
+                self.max_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.max_wave_var.get()))
+            else:
+                self.max_wave_idx = len(self.wavelengths) - 1
+
             self.steps = int(self.scan_width / self.step_size)
             print('number of steps', 2*self.steps + 1)
-            self.FROG_matrix = np.zeros((len(self.SpecFrame.spec.get_wavelengths()), 2*self.steps + 1)) #initialize matrix for data storage
+            self.FROG_matrix = np.zeros(self.max_wave_idx - self.min_wave_idx, 2*self.steps + 1) #initialize matrix for data storage
             self.im = self.FROG_plot.imshow(self.FROG_matrix)
             self.MotorFrame.move_to_save() #go to time 0
             self.MotorFrame.motor.move_relative(-self.scan_width) #go to the very back of the scan to start
@@ -70,23 +82,23 @@ class FROGFrame(tk.Frame):
             while counter < 2*self.steps + 1:
                 self.FROG_plot.clear() #clear previous plot from memory
                 intensity = self.SpecFrame.spec.get_intensities()
-                self.FROG_matrix[:, counter] = intensity #entire new column of intensity data
+                self.FROG_matrix[:, counter] = intensity[self.min_wave_idx:self.max_wave_idx] #entire new column of intensity data
                 time.sleep(int(self.SpecFrame.integration_var.get())*(10**-3)) 
                 #time.sleep(2)
-                #wait to ensure our net time step will grab a different integration from spectrometer
+                #wait to ensure our next time step will grab a different integration from spectrometer
                 
                 #remake from graph with new data
                 #self.im.set_data(self.FROG_matrix)
                 #self.im.autoscale()
                 #self.FROG_canvas.draw()
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[-1], self.wavelengths[0]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]])
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
                 self.MotorFrame.motor.move_relative(self.step_size) #move to next step
                 self.MotorFrame.refresh_position()
                 counter +=1
                 if counter == 2*self.steps - 1:
-                    print('last frog reading', intensity)
+                    print('last frog reading', intensity[self.min_wave_idx:self.max_wave_idx])
                 print('FROG step',counter)
             self.MotorFrame.motor.move_relative(-self.step_size) #go back one step
             self.MotorFrame.refresh_position()
@@ -95,13 +107,19 @@ class FROGFrame(tk.Frame):
             self.FROG_measurement = True
             print('FROG done')
 
+    def find_nearest(array, value):
+        #can defintely optimize since we have an ordered list
+        array = np.asarray(array)
+        idx = (np.abs(array - value)).argmin()
+        print('for ',value,' found ',idx,' with value ',array[idx])
+        return idx
     def backgroundAdjust(self):
         if self.FROG_measurement and self.SpecFrame.dark_measurement:
             try:
                 transposed_dark_frame = self.SpecFrame.background[:, np.newaxis]
                 self.FROG_matrix = self.FROG_matrix - transposed_dark_frame
                 self.FROG_matrix = np.where(self.FROG_matrix < 0, 0, self.FROG_matrix)
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[-1], self.wavelengths[0]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]])
                 self.FROG_plot.set_ylabel('Wavelength (nm)')
                 self.FROG_plot.set_xlabel('Delay (fs)')
                 self.FROG_canvas.draw()
@@ -120,15 +138,15 @@ class FROGFrame(tk.Frame):
             #number of delay points
             f.write(str(self.steps*2 + 1) + '\n')
             #number of wavelength points
-            f.write(str(len(self.wavelengths)) + '\n')
+            f.write(str(self.max_wave_idx - self.min_wave_idx) + '\n')
             #Delay Step size
             f.write(str(float(self.MotorFrame.step_size.get())) + '\n')
             #Wavelength step size
-            wave_range = self.wavelengths[-1] - self.wavelengths[0]
-            wave_step = wave_range / len(self.wavelengths)
+            wave_range = self.wavelengths[self.max_wave_idx] - self.wavelengths[self.min_wave_idx]
+            wave_step = wave_range / (self.max_wave_idx - self.min_wave_idx)
             f.write(str(wave_step) + '\n')
             #wavelength center pixel
-            center_wave = self.wavelengths[int(len(self.wavelengths) / 2)]
+            center_wave = self.wavelengths[(self.max_wave_idx + self.min_wave_idx) / 2]
             f.write(str(center_wave) + '\n')
             #actual FROG data
             f.close()

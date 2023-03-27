@@ -203,8 +203,9 @@ class SpectrometerFrame(tk.Frame):
             #   and take up lots memory
             #self.I_vs_wave.clear()
             wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
+            line1, = self.I_vs_wave.plot(wavelengths, intensities, 'b-')
+            self.spectral_figure.canvas.draw()
             #self.I_vs_wave.plot(wavelengths,intensities)
-            self.I_vs_wave.draw()
             '''
             self.I_vs_wave.set_xlabel('Wavelength (nm)')
             self.I_vs_wave.set_ylabel('Intensity (a.u.)')
@@ -226,9 +227,14 @@ class SpectrometerFrame(tk.Frame):
                 self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
             '''
             self.spectral_canvas.draw()
+            line1.remove()
             
             #keep repeating this function
-            self.spectral_cancel_id = self.after(int(self.integration_var.get()),self.graph_spectrum2)
+            wait_time = self.integration_var.get()
+            if wait_time == '':
+                #no integration time specified
+                wait_time = 1
+            self.spectral_cancel_id = self.after(int(wait_time),self.graph_spectrum2)
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
