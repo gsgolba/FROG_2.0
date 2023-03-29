@@ -15,7 +15,7 @@ import time
 SPEED_OF_LIGHT = 3e8
 FEMTO_TO_SEC = 1e-15
 METERS_TO_MILLI = 1e3
-FEMTO_TO_MILLI = SPEED_OF_LIGHT * FEMTO_TO_SEC * METERS_TO_MILLI
+FEMTO_TO_MILLI = SPEED_OF_LIGHT * FEMTO_TO_SEC * METERS_TO_MILLI / 2
 class FROGFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self,parent, highlightbackground='green', highlightthickness=2)
