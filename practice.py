@@ -11,7 +11,7 @@ plt.rcParams["figure.figsize"] = [7.00, 3.50]
 plt.rcParams["figure.autolayout"] = True
 
 spec = spectrometer.Virtual_Spectrometer()
-spec.change_integration_time(1000)
+spec.change_integration_time(10)
 #print(spec)
 #print(spec.get_both())
 

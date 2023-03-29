@@ -40,49 +40,54 @@ class MotorFrame(tk.Frame):
         self.home_button = tk.Button(self.ControlFrame, text='Home motor',command=self.home)
         self.home_button.grid(row=0,column=3)
 
+        self.motor_id_label = tk.Label(self.ControlFrame, text = 'Motor ID')
+        self.motor_id_label.grid(row=1, column=0)
+        self.motor_id_entry = tk.Entry(self.ControlFrame)
+        self.motor_id_entry.grid(row=1,column=1)
+
         self.step_size_label = tk.Label(self.ControlFrame,text='Step size (fs)')
-        self.step_size_label.grid(row=1,column=0)
+        self.step_size_label.grid(row=2,column=0)
         self.step_size_entry = tk.Entry(self.ControlFrame, textvariable=self.step_size)
         #self.step_size_entry.bind('<Return>', self.)
-        self.step_size_entry.grid(row=1,column=1)
+        self.step_size_entry.grid(row=2,column=1)
 
         self.delay_scan_width_label = tk.Label(self.ControlFrame, text='Delay scan width (fs)')
-        self.delay_scan_width_label.grid(row=2,column=0)
+        self.delay_scan_width_label.grid(row=3,column=0)
         self.delay_scan_width_entry = tk.Entry(self.ControlFrame, textvariable=self.delay_scan_width)
         
-        self.delay_scan_width_entry.grid(row=2, column=1)
+        self.delay_scan_width_entry.grid(row=3, column=1)
 
         self.jog_size_label = tk.Label(self.ControlFrame, text='Jog size (mm)')
-        self.jog_size_label.grid(row=3,column=0)
+        self.jog_size_label.grid(row=4,column=0)
         self.jog_size_entry = tk.Entry(self.ControlFrame, textvariable=self.jog_size)
         self.jog_size_entry.bind('<Return>',self.set_jog)
-        self.jog_size_entry.grid(row=3,column=1)
+        self.jog_size_entry.grid(row=4,column=1)
         self.jog_forward_button = tk.Button(self.ControlFrame, text='Jog forward',command=self.jog_forward)
-        self.jog_forward_button.grid(row=3,column=2)
+        self.jog_forward_button.grid(row=4,column=2)
         self.jog_backward_button = tk.Button(self.ControlFrame, text='Jog backward',command=self.jog_backward)
-        self.jog_backward_button.grid(row=3,column=3)
+        self.jog_backward_button.grid(row=4,column=3)
 
 
         self.position_label = tk.Label(self.ControlFrame, text='Current Position (mm and fs)')
-        self.position_label.grid(row=4,column=0)
+        self.position_label.grid(row=5,column=0)
         self.position_post = tk.Label(self.ControlFrame, text='No position until motor connected')
-        self.position_post.grid(row=4,column=1)
+        self.position_post.grid(row=5,column=1)
         self.position_post_fs = tk.Label(self.ControlFrame, text='No position until motor connected')
-        self.position_post_fs.grid(row=4,column=2)
+        self.position_post_fs.grid(row=5,column=2)
         self.position_move_label = tk.Label(self.ControlFrame,text= 'Move to Position')
-        self.position_move_label.grid(row=4,column=3)
+        self.position_move_label.grid(row=5,column=3)
         self.position_move_entry = tk.Entry(self.ControlFrame, textvariable=self.position)
         self.position_move_entry.bind('<Return>',self.move_to_position)
-        self.position_move_entry.grid(row=4,column=4)
+        self.position_move_entry.grid(row=5,column=4)
 
         self.move_to_save_button = tk.Button(self.ControlFrame,text='Move to saved position',command=self.move_to_save)
-        self.move_to_save_button.grid(row=5,column=0)
+        self.move_to_save_button.grid(row=6,column=0)
         self.save_button = tk.Button(self.ControlFrame,text='Save current position',command=self.save_position)
-        self.save_button.grid(row=5,column=1)
+        self.save_button.grid(row=6,column=1)
         self.saved_label = tk.Label(self.ControlFrame, text='Current saved position (mm)')
-        self.saved_label.grid(row=5,column=2)
+        self.saved_label.grid(row=6,column=2)
         self.saved_entry = tk.Label(self.ControlFrame, text='Connect the motor first')
-        self.saved_entry.grid(row=5,column=3)
+        self.saved_entry.grid(row=6,column=3)
 
 
     def refresh_position(self):
@@ -91,8 +96,9 @@ class MotorFrame(tk.Frame):
     def connect_motor(self):
         #can improve by letting the user define the motor serial number and name
         try:
+            self.motor = ThorLabsMotor.Controller(self.motor_id_entry.get(), 'ZST225')
             #self.motor = ThorLabsMotor.Controller('26005057', 'ZST225')
-            self.motor = ThorLabsMotor.Controller('26004024', 'ZST225')
+            #self.motor = ThorLabsMotor.Controller('26004024', 'ZST225')
             #self.motor = ThorLabsMotor.Controller('26002816', 'ZST225')
             self.motor.connect()
             print('motor connected')
