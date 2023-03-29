@@ -118,7 +118,7 @@ class FROGFrame(tk.Frame):
     def backgroundAdjust(self):
         if self.FROG_measurement and self.SpecFrame.dark_measurement:
             try:
-                transposed_dark_frame = self.SpecFrame.background[:, np.newaxis]
+                transposed_dark_frame = self.SpecFrame.background[self.min_wave_idx:self.max_wave_idx, np.newaxis]
                 self.FROG_matrix = self.FROG_matrix - transposed_dark_frame
                 self.FROG_matrix = np.where(self.FROG_matrix < 0, 0, self.FROG_matrix)
                 self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]])
