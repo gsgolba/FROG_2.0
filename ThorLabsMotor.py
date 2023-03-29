@@ -70,8 +70,7 @@ class Controller:
         self.controller.Home(MOVE_WAIT_TIME)
     def move_relative(self, dis):
         #print('do relative move')
-        print('distance ', dis, ' converted to ', dis*UNIT_CONVERTER, ' decimal giving ', Decimal(dis*UNIT_CONVERTER))
-        self.controller.SetMoveRelativeDistance(Decimal(dis*UNIT_CONVERTER))
+        self.controller.SetMoveRelativeDistance(Decimal(dis))
         self.controller.MoveRelative(MOVE_WAIT_TIME)
     def move_absolute(self, pos):
         #print('moving device to ', Decimal(pos))
@@ -81,7 +80,7 @@ class Controller:
         self.controller.DisableDevice()
     def set_jog_step_size(self, step_size):
         jog_params = self.controller.GetJogParams()
-        jog_params.StepSize = Decimal(step_size*UNIT_CONVERTER)
+        jog_params.StepSize = Decimal(step_size)
         jog_params.JogMode = JogParametersBase.JogModes.SingleStep
         self.controller.SetJogParams(jog_params)
     def get_jog_step_size(self):

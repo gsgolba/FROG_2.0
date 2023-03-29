@@ -57,7 +57,7 @@ class MotorFrame(tk.Frame):
         
         self.delay_scan_width_entry.grid(row=3, column=1)
 
-        self.jog_size_label = tk.Label(self.ControlFrame, text='Jog size (mm)')
+        self.jog_size_label = tk.Label(self.ControlFrame, text='Jog size (fs)')
         self.jog_size_label.grid(row=4,column=0)
         self.jog_size_entry = tk.Entry(self.ControlFrame, textvariable=self.jog_size)
         self.jog_size_entry.bind('<Return>',self.set_jog)
@@ -131,7 +131,7 @@ class MotorFrame(tk.Frame):
         else:
             msgbox.showerror('Yikes','No motor connected')
     def set_jog(self,event):
-        self.motor.set_jog_step_size(float(self.jog_size.get()))
+        self.motor.set_jog_step_size(float(self.jog_size.get()) * FEMTO_TO_MILLI)
     def jog_forward(self):
         self.motor.jog_forward()
         self.refresh_position()

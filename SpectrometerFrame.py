@@ -265,6 +265,7 @@ class SpectrometerFrame(tk.Frame):
         plt.close('all')
         if self.spec != None:
             try:
+                self.stop_graphing()
                 self.spec.destroy()
             except: #this should never happen, but just in case
                 print('no spectrometer to destroy')

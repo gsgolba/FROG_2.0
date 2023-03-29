@@ -92,7 +92,8 @@ class FROGFrame(tk.Frame):
                 #self.im.set_data(self.FROG_matrix)
                 #self.im.autoscale()
                 #self.FROG_canvas.draw()
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]], origin='upper')
+                self.FROG_plot.invert_yaxis()
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
                 self.SpecFrame.update_spectrum(self.wavelengths,intensity)
@@ -121,7 +122,8 @@ class FROGFrame(tk.Frame):
                 transposed_dark_frame = self.SpecFrame.background[self.min_wave_idx:self.max_wave_idx, np.newaxis]
                 self.FROG_matrix = self.FROG_matrix - transposed_dark_frame
                 self.FROG_matrix = np.where(self.FROG_matrix < 0, 0, self.FROG_matrix)
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]])
+                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]], origin='upper')
+                self.FROG_plot.invert_yaxis()
                 self.FROG_plot.set_ylabel('Wavelength (nm)')
                 self.FROG_plot.set_xlabel('Delay (fs)')
                 self.FROG_canvas.draw()
@@ -148,12 +150,12 @@ class FROGFrame(tk.Frame):
             wave_step = wave_range / (self.max_wave_idx - self.min_wave_idx)
             f.write(str(wave_step) + '\n')
             #wavelength center pixel
-            center_wave = self.wavelengths[(self.max_wave_idx + self.min_wave_idx) / 2]
+            center_wave = self.wavelengths[int((self.max_wave_idx + self.min_wave_idx) / 2)]
             f.write(str(center_wave) + '\n')
             #actual FROG data
             f.close()
             f = open('FROG_DATA/' + file_name, 'a')
-            np.savetxt(f,self.FROG_matrix)
+            np.savetxt(f,self.FROG_matrix.T)
             f.close()
 
     def shutdown(self):
