@@ -63,7 +63,7 @@ class FROGFrame(tk.Frame):
             #only take wavelengths specified by user,
                 #find the nearest index for wavelength that specifed by user
             self.wavelengths = self.SpecFrame.spec.get_wavelengths()
-            if self.SpecFrame.min_wave_var.get == '':
+            if self.SpecFrame.min_wave_var.get() == '':
                 self.min_wave_idx = 0
             else:
                 self.min_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.min_wave_var.get()))
