@@ -92,7 +92,7 @@ class FROGFrame(tk.Frame):
                 #self.im.set_data(self.FROG_matrix)
                 #self.im.autoscale()
                 #self.FROG_canvas.draw()
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]], origin='upper')
+                self.FROG_plot.imshow(self.FROG_matrix,cmap='seismic', aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]], origin='upper')
                 self.FROG_plot.invert_yaxis()
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
@@ -122,7 +122,7 @@ class FROGFrame(tk.Frame):
                 transposed_dark_frame = self.SpecFrame.background[self.min_wave_idx:self.max_wave_idx, np.newaxis]
                 self.FROG_matrix = self.FROG_matrix - transposed_dark_frame
                 self.FROG_matrix = np.where(self.FROG_matrix < 0, 0, self.FROG_matrix)
-                self.FROG_plot.imshow(self.FROG_matrix, aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]], origin='upper')
+                self.FROG_plot.imshow(self.FROG_matrix,cmap='seismic' ,aspect='auto',extent=[-float(self.MotorFrame.delay_scan_width.get()),float(self.MotorFrame.delay_scan_width.get()), self.wavelengths[self.max_wave_idx], self.wavelengths[self.min_wave_idx]], origin='upper')
                 self.FROG_plot.invert_yaxis()
                 self.FROG_plot.set_ylabel('Wavelength (nm)')
                 self.FROG_plot.set_xlabel('Delay (fs)')
