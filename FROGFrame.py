@@ -100,9 +100,9 @@ class FROGFrame(tk.Frame):
                 self.MotorFrame.motor.move_relative(self.step_size) #move to next step
                 self.MotorFrame.refresh_position()
                 counter +=1
-                if counter == 2*self.steps + 1:
-                    print('last frog reading', intensity[self.min_wave_idx:self.max_wave_idx])
-                print('FROG step',counter)
+                #if counter == 2*self.steps + 1:
+                #    print('last frog reading', intensity[self.min_wave_idx:self.max_wave_idx])
+                #print('FROG step',counter)
             self.MotorFrame.motor.move_relative(-self.step_size) #go back one step
             self.MotorFrame.refresh_position()
             self.FROG_plot.set_ylabel('Wavelength (nm)')
