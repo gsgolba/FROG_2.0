@@ -17,7 +17,7 @@ button_padding = {'padx': 2, 'pady': 2}
 
 class SpectrometerFrame(tk.Frame):
     def __init__(self,parent):
-        tk.Frame.__init__(self,parent,highlightbackground='orange',highlightthickness=2)
+        tk.Frame.__init__(self,parent)#,highlightbackground='orange',highlightthickness=2)
 
         #initiialize the strings for user input
         self.spec = None
@@ -41,12 +41,12 @@ class SpectrometerFrame(tk.Frame):
 
         self.spectral_canvas = FigureCanvasTkAgg(self.spectral_figure, self)
         self.spectral_canvas.draw()
-        self.spectral_canvas.get_tk_widget().grid(row=0,column=0)
+        self.spectral_canvas.get_tk_widget().grid(row=0,column=0,pady=(10,0))
 
         #Create Controls
 
-        self.ControlFrame = tk.Frame(self,highlightbackground='blue', highlightthickness=2)
-        self.ControlFrame.grid(row=1, column=0)
+        self.ControlFrame = tk.Frame(self,highlightbackground='black', highlightthickness=2)
+        self.ControlFrame.grid(row=1, column=0,pady=(43,10)) #arbitrary padding in order to line up the two control frames
 
         self.connect_spectrometer = tk.Button(self.ControlFrame, text='Connect Virtual Spectrometer', command=self.connect_virtual)
         self.connect_spectrometer.grid(row=0,column=0,**button_padding)

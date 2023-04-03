@@ -10,7 +10,7 @@ FEMTO_TO_MILLI = SPEED_OF_LIGHT * FEMTO_TO_SEC * METERS_TO_MILLI #use later for 
 
 class MotorFrame(tk.Frame):
     def __init__(self,parent):
-        tk.Frame.__init__(self,parent,highlightbackground='red',highlightthickness=2)
+        tk.Frame.__init__(self,parent)#,highlightbackground='red',highlightthickness=2)
         
         #initialize the strings for user input
         self.step_size = tk.StringVar(self)
