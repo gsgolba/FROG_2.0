@@ -58,7 +58,9 @@ class FROGFrame(tk.Frame):
         else:
             counter = 0
             self.step_size = float(self.MotorFrame.step_size.get()) * FEMTO_TO_MILLI
+            self.step_size_motor_movement = self.step_size / 2 #ray goes through path twice, motor only needs to move half distance
             self.scan_width = float(self.MotorFrame.delay_scan_width.get()) * FEMTO_TO_MILLI
+            self.scan_width_motor_movement = self.scan_width / 2 
             #what if they are not multiples of one another?
 
             #only take wavelengths specified by user,
@@ -74,11 +76,11 @@ class FROGFrame(tk.Frame):
                 self.max_wave_idx = self.find_nearest(self.wavelengths, float(self.SpecFrame.max_wave_var.get()))
 
             self.steps = int(self.scan_width / self.step_size)
-            print('number of steps', 2*self.steps + 1, ' step_size ', self.step_size, ' width', self.scan_width)
+            print('number of steps', 2*self.steps + 1, ' step_size ', self.step_size, ' width', self.scan_width, ' motor moves by ', self.step_size_motor_movement, ' ', self.scan_width_motor_movement)
             self.FROG_matrix = np.zeros((self.max_wave_idx - self.min_wave_idx, 2*self.steps + 1)) #initialize matrix for data storage
             self.im = self.FROG_plot.imshow(self.FROG_matrix)
             #self.MotorFrame.move_to_save() #go to time 0
-            self.MotorFrame.motor.move_relative(-self.scan_width) #go to the very back of the scan to start
+            self.MotorFrame.motor.move_relative(-self.scan_width_motor_movement) #go to the very back of the scan to start
             self.MotorFrame.refresh_position()
             self.SpecFrame.stop_graphing()
             while counter < 2*self.steps + 1:
@@ -98,14 +100,14 @@ class FROGFrame(tk.Frame):
                 self.FROG_canvas.draw()
                 self.FROG_subframe.update()
                 self.SpecFrame.update_spectrum(self.wavelengths,intensity)
-                self.MotorFrame.motor.move_relative(self.step_size) #move to next step
+                self.MotorFrame.motor.move_relative(self.step_size_motor_movement) #move to next step
                 self.MotorFrame.refresh_position()
                 counter +=1
                 #if counter == 2*self.steps + 1:
                 #    print('last frog reading', intensity[self.min_wave_idx:self.max_wave_idx])
                 #print('FROG step',counter)
-            self.MotorFrame.motor.move_relative(-self.step_size) #go back one step
-            self.MotorFrame.motor.move_relative(-self.scan_width) #go back to time 0
+            self.MotorFrame.motor.move_relative(-self.step_size_motor_movement) #go back one step
+            self.MotorFrame.motor.move_relative(-self.scan_width_motor_movement) #go back to time 0
             self.MotorFrame.refresh_position()
             self.FROG_plot.set_ylabel('Wavelength (nm)')
             self.FROG_plot.set_xlabel('Delay (fs)')

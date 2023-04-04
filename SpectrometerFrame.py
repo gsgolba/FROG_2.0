@@ -205,27 +205,6 @@ class SpectrometerFrame(tk.Frame):
             wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
             line1, = self.I_vs_wave.plot(wavelengths, intensities, 'b-')
             self.spectral_figure.canvas.draw()
-            #self.I_vs_wave.plot(wavelengths,intensities)
-            '''
-            self.I_vs_wave.set_xlabel('Wavelength (nm)')
-            self.I_vs_wave.set_ylabel('Intensity (a.u.)')
-            self.I_vs_wave.set_title('Spectrometer Reading')
-            self.I_vs_wave.grid(True)
-
-            #remake bounds
-            left,right = self.I_vs_wave.get_xlim()
-            down,up = self.I_vs_wave.get_ylim()
-            if self.min_wave_var.get() != '':
-                left = int(self.min_wave_var.get())
-                self.I_vs_wave.set_xlim([left,right])
-            if self.max_wave_var.get() != '':
-                self.I_vs_wave.set_xlim([left,int(self.max_wave_var.get())])
-            if self.min_intense_var.get() != '':
-                down = int(self.min_intense_var.get())
-                self.I_vs_wave.set_ylim([down,up])
-            if self.max_intense_var.get() != '':
-                self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
-            '''
             self.spectral_canvas.draw()
             line1.remove()
             
