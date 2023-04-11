@@ -20,8 +20,7 @@ class MotorFrame(tk.Frame):
         self.saved_position = tk.StringVar(self)
 
 
-        #name and serial numer for motor is needed
-        #   maybe make it a user input later on?
+        #name and serial number for motor is needed
         self.motor_name = tk.StringVar(self)
         self.serial_number = tk.StringVar(self)
         self.motor = None
@@ -91,8 +90,8 @@ class MotorFrame(tk.Frame):
 
 
     def refresh_position(self):
-        self.position_post.config(text="{:.5f}".format(self.motor.get_position()))
-        self.position_post_fs.config(text="{:.5f}".format(self.motor.get_position() / FEMTO_TO_MILLI))
+        self.position_post.config(text="{:.4f}".format(self.motor.get_position()))
+        self.position_post_fs.config(text="{:.4f}".format(self.motor.get_position() / FEMTO_TO_MILLI))
     def connect_motor(self):
         #can improve by letting the user define the motor serial number and name
         try:

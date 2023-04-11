@@ -27,6 +27,6 @@ class FROGWindow(tk.Tk):
 
 if __name__ == "__main__":
     window = FROGWindow()
-    window.geometry('1300x900')
+    window.geometry('1350x750')
     window.protocol('WM_DELETE_WINDOW', window.kill_it)
     window.mainloop()

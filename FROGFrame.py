@@ -17,7 +17,7 @@ SPEED_OF_LIGHT = 3e8
 FEMTO_TO_SEC = 1e-15
 METERS_TO_MILLI = 1e3
 FEMTO_TO_MILLI = SPEED_OF_LIGHT * FEMTO_TO_SEC * METERS_TO_MILLI
-#so moving 100 fs would physically move the motor 0.03 mm
+#so moving 100 fs would physically move the motor 0.015 mm (halved for acccount of round trip)
 class FROGFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self,parent)#, highlightbackground='green', highlightthickness=2)
@@ -87,6 +87,9 @@ class FROGFrame(tk.Frame):
             while counter < 2*self.steps + 1:
                 self.FROG_plot.clear() #clear previous plot from memory
                 intensity = self.SpecFrame.spec.get_intensities()
+                if self.SpecFrame.auto_background:
+                    intensity -= self.SpecFrame.background
+                    intensity = np.where(intensity < 0, 0, intensity)
                 self.FROG_matrix[:, counter] = intensity[self.min_wave_idx:self.max_wave_idx] #entire new column of intensity data
                 time.sleep(int(self.SpecFrame.integration_var.get())*(10**-3)) 
                 #time.sleep(2)

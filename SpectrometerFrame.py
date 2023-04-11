@@ -30,6 +30,7 @@ class SpectrometerFrame(tk.Frame):
         self.spectral_cancel_id = None
         self.background = None
         self.dark_measurement = False
+        self.auto_background = 1 #True
 
         #figure
         self.spectral_figure = plt.figure(figsize=(5,5))
@@ -60,6 +61,8 @@ class SpectrometerFrame(tk.Frame):
         self.min_wave_entry.grid(column=1,row=1)
         self.min_wave_label = tk.Label(self.ControlFrame, text='Wavelength min (nm)')
         self.min_wave_label.grid(column=0,row=1)
+        self.spec_connection_label = tk.Label(self.ControlFrame,text='Disconnected')
+        self.spec_connection_label.grid(column=2,row=1)
 
         self.max_wave_entry = tk.Entry(self.ControlFrame, textvariable=self.max_wave_var)
         self.max_wave_entry.bind('<Return>', self.set_max_wave)
@@ -89,7 +92,8 @@ class SpectrometerFrame(tk.Frame):
         self.graph_button.grid(row=6,column=0)
         self.stop_button = tk.Button(self.ControlFrame,text='Stop Graphing', command=self.stop_graphing)
         self.stop_button.grid(row=6,column=1)
-
+        self.auto_background_button = tk.Button(self.ControlFrame, text=f'Auto Background: {bool(self.auto_background)}', command=self.background_adjusting)
+        self.auto_background_button.grid(row=6,column=2)
         #self.spec_run_button = tk.Button(self.ControlFrame, text='Run Spec', command=self.spectral_reading)
         #self.spec_run_button.grid(column=0,row=6)
         #self.spec_stop_run_button = tk.Button(self.ControlFrame, text='Stop Run', command=self.stop_spectral_reading)
@@ -98,6 +102,7 @@ class SpectrometerFrame(tk.Frame):
     def connect_virtual(self):
         try:
             self.spec = spectrometer.Virtual_Spectrometer()
+            self.spec_connection_label.config(text='Connected')
             self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME) 
             self.background_frame()
             #not sure of initial time, so I set it to something known
@@ -107,6 +112,7 @@ class SpectrometerFrame(tk.Frame):
     def connect_real(self):
         try:
             self.spec = spectrometer.Spectrometer()
+            self.spec_connection_label.config(text='Connected')
             self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME)
             self.background_frame()
             print(self.spec)
@@ -116,6 +122,7 @@ class SpectrometerFrame(tk.Frame):
         if self.spec != None:
             self.spec.destroy()
             self.spec = None
+            self.spec_connection_label.config(text='Disconnected')
         else:
             msgbox.showerror('Yikes', 'No spectormeter to disconnect')
     def set_min_wave(self,event): #find old bounds, and update them accordingly
@@ -154,9 +161,10 @@ class SpectrometerFrame(tk.Frame):
                 msgbox.showinfo(message='Will not take new background')
         except:
             msgbox.showerror('yikes','Background inquiry failed')
-
+    '''
     def graph_spectrum(self):
         ani = animation.FuncAnimation(self.spectral_figure, self.graph_spectrum1,interval=500,frames=20)
+    
     def threading_start(self):
         print('starting thread')
         thread = threading.Thread(target=self.graph_spectrum1, daemon=True)
@@ -195,7 +203,7 @@ class SpectrometerFrame(tk.Frame):
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
-        
+        '''
     def graph_spectrum2(self):
         if self.spec != None:
             #clear previous frame, 
@@ -203,6 +211,9 @@ class SpectrometerFrame(tk.Frame):
             #   and take up lots memory
             #self.I_vs_wave.clear()
             wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
+            if self.auto_background:
+                intensities -= self.background
+                intensities = np.where(intensities < 0, 0, intensities)
             line1, = self.I_vs_wave.plot(wavelengths, intensities, 'b-')
             self.spectral_figure.canvas.draw()
             self.spectral_canvas.draw()
@@ -226,13 +237,19 @@ class SpectrometerFrame(tk.Frame):
             line1.remove()
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
-            
+    
+    def background_adjusting(self):
+        self.auto_background += 1
+        self.auto_background %= 2
+        self.auto_background_button.config(text=f'Auto Background: {bool(self.auto_background)}')
+
     def stop_graphing(self):
         if self.spectral_cancel_id != None:
             self.after_cancel(self.spectral_cancel_id)
             self.spectral_cancel_id = None
         else:
             print('No graph to stop')
+
 
 
 
