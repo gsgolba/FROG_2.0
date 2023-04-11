@@ -3,6 +3,7 @@ Creating an API for spectrometer and motor controller
 **Currently only compatible with Windows OS**
 
 # How to use
+* Ensure all libraries and files necessary are downloaded (listed [below])
 * Run the program either by launching the executible (in dist folder) or running the "FROG_GUI_2.0.py" script. Should display an interface as below
 
 <img src="tutorial_photos/full_gui.png">
