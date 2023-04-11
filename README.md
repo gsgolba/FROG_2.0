@@ -2,7 +2,7 @@
 Creating an API for spectrometer and motor controller
 **Currently only compatible with Windows OS**
 
-#How to use
+# How to use
 ![Alt text](/tutorial_photos/example_frog.png "Optonal Title)
 
 # Necessary Downloads
