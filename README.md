@@ -43,12 +43,23 @@ Creating an API for spectrometer and motor controller
 <img src="tutorial_photos/motor_controls.png">
 
 ## FROG Controls
-* Nice
+* **In order to run a FROG scan the following must be done by user**
+  1. Connect a spectrometer
+  2. Connect a motor
+  3. Set step size and step width
+  4. Ensure the step width does not go past the physical range of the motor
+     * for example: if the motor is homed and in position 0, no scan width will work for frogging as the motor cannot move any further back to initiate the scan
+* FROG with FROG button
+  * The motor will move backwards by one full scan width and then begin scanning, moving by the inputted step size. Will finish after moving one full scan width past the original location (time 0) and will return to original location when FROG scan is finished
+  * Each step in the scan waits an entire integration length as denoted in the spectrometer controls. This ensures that each step is getting a new spectrum from the spectrometer.
+* save the FROG data (will save data in a txt file in the format necessary for the post proocessing program to read)
+* Adjust the FROG data with the background intensity
+  * Should not be necessary if Auto Background is toggled True in the Spectrometer controls
 
 <img src="tutorial_photos/frog_controls.png">
 
 ## Example FROG
-* Ncie
+* Below is an example FROG using a virtual spectrometer and a KST101 Thorlabs motor. Since the spectrometer is virtual, moving the motor does nothing to the spectrum, hence we get a constant intensity read out in the FROG for all time steps. In this case, the motors original location was at 1 mm (homed) and returned after finishing the FROG scan.
 
 <img src="tutorial_photos/example_frog.png">
 
