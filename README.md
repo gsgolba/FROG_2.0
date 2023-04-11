@@ -2,6 +2,9 @@
 Creating an API for spectrometer and motor controller
 **Currently only compatible with Windows OS**
 
+# How to use
+![Alt text](github.com/gsgolba/FROG_2.0//tutorial_photos/example_frog.png?raw=true "Optonal Title)
+
 # Necessary Downloads
 * Download Thorlabs kinesis software for the DLLS: https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=Motion_Control&viewtab=0
   * There is a file called Thorlabs.MotionControl.DotNet_API.chm which is basically the documentation for all the functions that the motor controller software provides
