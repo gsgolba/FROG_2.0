@@ -48,8 +48,9 @@ class FROGFrame(tk.Frame):
         self.FROG_button.grid(row=1,column=0)
         self.save_button = tk.Button(self.FROG_subframe, text='save FROG', command=self.saveFROG)
         self.save_button.grid(row=1,column=1)
-        self.background_adjust_button = tk.Button(self.FROG_subframe,text='Adjust with background', command=self.backgroundAdjust)
-        self.background_adjust_button.grid(row=1,column=2)
+        #adjusting background should be unnecessary, but here is code for it
+        #self.background_adjust_button = tk.Button(self.FROG_subframe,text='Adjust with background', command=self.backgroundAdjust)
+        #self.background_adjust_button.grid(row=1,column=2)
 
     def FROG(self):
         if self.MotorFrame.step_size.get() == '' or self.MotorFrame.delay_scan_width.get() == '':
@@ -117,6 +118,7 @@ class FROGFrame(tk.Frame):
             self.FROG_plot.set_xlabel('Delay (fs)')
             self.FROG_measurement = True
             print('FROG done')
+            self.SpecFrame.graph_spectrum2()
 
     def find_nearest(self,array, value):
         #can defintely optimize since we have an ordered list

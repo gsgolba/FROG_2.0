@@ -102,6 +102,7 @@ class MotorFrame(tk.Frame):
             self.motor.connect()
             print('motor connected')
             self.motor_status.config(text='Connected')
+            self.connect_motor_button.config(state=tk.DISABLED)
             path = pathlib.Path('./saved_motor_position.p')
             if path.is_file():
                 #print('path is indeed file')
@@ -115,7 +116,7 @@ class MotorFrame(tk.Frame):
             self.motor.disconnect()
             self.motor = None
             self.motor_status.config(text='Disconnected')
-            self.motor_status
+            self.connect_motor_button.config(state=tk.ACTIVE)
         except:
             msgbox.showerror('Yikes', 'Trouble with disconnecting motor')
     def home(self):

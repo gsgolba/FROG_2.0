@@ -107,6 +107,8 @@ class SpectrometerFrame(tk.Frame):
             self.background_frame()
             #not sure of initial time, so I set it to something known
             print(self.spec)
+            self.connect_spectrometer.config(state=tk.DISABLED)
+            self.connect_spectrometer_.config(state=tk.DISABLED)
         except:
             msgbox.showerror('Yikes', 'Could not connect virtual spectrometer')
     def connect_real(self):
@@ -116,6 +118,8 @@ class SpectrometerFrame(tk.Frame):
             self.spec.change_integration_time(DEFAULT_INTEGRATION_TIME)
             self.background_frame()
             print(self.spec)
+            self.connect_spectrometer.config(state=tk.DISABLED)
+            self.connect_spectrometer_.config(state=tk.DISABLED)
         except:
             msgbox.showerror('Yikes', 'Could not connect real spectrometer')
     def disconnect(self):
@@ -123,6 +127,8 @@ class SpectrometerFrame(tk.Frame):
             self.spec.destroy()
             self.spec = None
             self.spec_connection_label.config(text='Disconnected')
+            self.connect_spectrometer.config(state=tk.ACTIVE)
+            self.connect_spectrometer_.config(state=tk.ACTIVE)
         else:
             msgbox.showerror('Yikes', 'No spectormeter to disconnect')
     def set_min_wave(self,event): #find old bounds, and update them accordingly
@@ -225,6 +231,7 @@ class SpectrometerFrame(tk.Frame):
                 #no integration time specified
                 wait_time = 1
             self.spectral_cancel_id = self.after(int(wait_time),self.graph_spectrum2)
+            self.graph_button.config(state=tk.DISABLED)
 
         else:
             msgbox.showerror('Yikes', 'No spectrometer connected')
@@ -247,6 +254,7 @@ class SpectrometerFrame(tk.Frame):
         if self.spectral_cancel_id != None:
             self.after_cancel(self.spectral_cancel_id)
             self.spectral_cancel_id = None
+            self.graph_button.config(state=tk.ACTIVE)
         else:
             print('No graph to stop')
 
