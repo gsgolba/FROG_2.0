@@ -26,7 +26,9 @@ class SpectrometerFrame(tk.Frame):
         self.max_intense_var = tk.StringVar(self)
         self.min_intense_var = tk.StringVar(self)
         self.integration_var = tk.StringVar(self)
+        self.averaging_var = tk.StringVar(self)
         self.integration_var.set(str(DEFAULT_INTEGRATION_TIME))
+        self.averaging_var.set(str(1)) #by default we only graph one reading from the spectrum
         self.spectral_cancel_id = None
         self.background = None
         self.dark_measurement = False
@@ -47,7 +49,7 @@ class SpectrometerFrame(tk.Frame):
         #Create Controls
 
         self.ControlFrame = tk.Frame(self,highlightbackground='black', highlightthickness=2)
-        self.ControlFrame.grid(row=1, column=0,pady=(43,10)) #arbitrary padding in order to line up the two control frames
+        self.ControlFrame.grid(row=1, column=0,pady=(26,10)) #arbitrary padding in order to line up the two control frames
 
         self.connect_spectrometer = tk.Button(self.ControlFrame, text='Connect Virtual Spectrometer', command=self.connect_virtual)
         self.connect_spectrometer.grid(row=0,column=0,**button_padding)
@@ -87,13 +89,18 @@ class SpectrometerFrame(tk.Frame):
         self.integration_entry.grid(column=1,row=5)
         self.integration_label = tk.Label(self.ControlFrame, text='Integration time (ms)')
         self.integration_label.grid(column=0,row=5)
+        
+        self.averaging_label = tk.Label(self.ControlFrame, text='Averaging')
+        self.averaging_label.grid(column=0, row=6)
+        self.averaging_entry = tk.Entry(self.ControlFrame, textvariable=self.averaging_var) 
+        self.averaging_entry.grid(column=1,row=6)
 
         self.graph_button = tk.Button(self.ControlFrame, text='Graph Spectrum!', command=self.graph_spectrum2)
-        self.graph_button.grid(row=6,column=0)
+        self.graph_button.grid(row=7,column=0)
         self.stop_button = tk.Button(self.ControlFrame,text='Stop Graphing', command=self.stop_graphing)
-        self.stop_button.grid(row=6,column=1)
+        self.stop_button.grid(row=7,column=1)
         self.auto_background_button = tk.Button(self.ControlFrame, text=f'Auto Background: {bool(self.auto_background)}', command=self.background_adjusting)
-        self.auto_background_button.grid(row=6,column=2)
+        self.auto_background_button.grid(row=7,column=2)
         #self.spec_run_button = tk.Button(self.ControlFrame, text='Run Spec', command=self.spectral_reading)
         #self.spec_run_button.grid(column=0,row=6)
         #self.spec_stop_run_button = tk.Button(self.ControlFrame, text='Stop Run', command=self.stop_spectral_reading)
@@ -167,70 +174,35 @@ class SpectrometerFrame(tk.Frame):
                 msgbox.showinfo(message='Will not take new background')
         except:
             msgbox.showerror('yikes','Background inquiry failed')
-    '''
-    def graph_spectrum(self):
-        ani = animation.FuncAnimation(self.spectral_figure, self.graph_spectrum1,interval=500,frames=20)
-    
-    def threading_start(self):
-        print('starting thread')
-        thread = threading.Thread(target=self.graph_spectrum1, daemon=True)
-        thread.start()
-        print('thread is started')
-    def graph_spectrum1(self):
-        if self.spec != None:
-            #clear previous frame, 
-            #   otherwise it'll be behind the next plot 
-            #   and take up lots memory
-            while(True):
-                print('plotting')
-                self.I_vs_wave.clear()
-                wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
-                self.I_vs_wave.plot(wavelengths,intensities)
-                self.I_vs_wave.set_xlabel('Wavelength (nm)')
-                self.I_vs_wave.set_ylabel('Intensity (a.u.)')
-                self.I_vs_wave.set_title('Spectrometer Reading')
-                self.I_vs_wave.grid(True)
-
-                #remake bounds
-                left,right = self.I_vs_wave.get_xlim()
-                down,up = self.I_vs_wave.get_ylim()
-                if self.min_wave_var.get() != '':
-                    left = int(self.min_wave_var.get())
-                    self.I_vs_wave.set_xlim([left,right])
-                if self.max_wave_var.get() != '':
-                    self.I_vs_wave.set_xlim([left,int(self.max_wave_var.get())])
-                if self.min_intense_var.get() != '':
-                    down = int(self.min_intense_var.get())
-                    self.I_vs_wave.set_ylim([down,up])
-                if self.max_intense_var.get() != '':
-                    self.I_vs_wave.set_ylim([down,int(self.max_intense_var.get())])
-                
-                self.spectral_canvas.draw()
-
-        else:
-            msgbox.showerror('Yikes', 'No spectrometer connected')
-        '''
     def graph_spectrum2(self):
         if self.spec != None:
             #clear previous frame, 
             #   otherwise it'll be behind the next plot 
             #   and take up lots memory
             #self.I_vs_wave.clear()
-            wavelengths, intensities = self.spec.get_both() #maybe don't use local variable, does it waste memory?
-            if self.auto_background:
-                intensities -= self.background
-                intensities = np.where(intensities < 0, 0, intensities)
-            line1, = self.I_vs_wave.plot(wavelengths, intensities, 'b-')
+            wavelengths = self.spec.get_wavelengths()
+            intensity_avg = np.zeros(len(wavelengths))
+            if self.averaging_var.get() == '':
+                msgbox.showerror(message="Need an amount of frames to average over")
+                return
+            for i in range(int(self.averaging_var.get())):
+                intensities = self.spec.get_intensities()
+                if self.auto_background:
+                    intensities -= self.background
+                    intensities = np.where(intensities < 0, 0, intensities)
+                intensity_avg += intensities
+            intensity_avg /= int(self.averaging_var.get())
+            line1, = self.I_vs_wave.plot(wavelengths, intensity_avg, 'b-')
             self.spectral_figure.canvas.draw()
             self.spectral_canvas.draw()
             line1.remove()
             
             #keep repeating this function
-            wait_time = self.integration_var.get()
-            if wait_time == '':
-                #no integration time specified
-                wait_time = 1
-            self.spectral_cancel_id = self.after(int(wait_time),self.graph_spectrum2)
+            #wait_time = self.integration_var.get()
+            #if wait_time == '':
+            #    #no integration time specified
+            #    wait_time = 1
+            self.spectral_cancel_id = self.after(1,self.graph_spectrum2)
             self.graph_button.config(state=tk.DISABLED)
 
         else:
