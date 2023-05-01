@@ -5,7 +5,14 @@ Creating an API for spectrometer and motor controller
 # How to use
 * Ensure all libraries and files necessary are downloaded (listed [below](https://github.com/gsgolba/FROG_2.0/blob/main/README.md#necessary-downloads))
 * Run the program either by launching the executible (in dist folder) or running the "FROG_GUI_2.0.py" script. Should display an interface as below
-
+This would look something like (**Need python 3.x installed for these libraries**)
+```powershell
+python -m pip install tkinter
+python -m pip install seabreeze
+python -m pip install seatease
+python -m pip install pythonnet
+```
+**And be sure to install the Thorlabs Kinesis DLLs**
 <img src="tutorial_photos/full_gui.png">
 
 ## Spectrometer Controls
@@ -48,7 +55,8 @@ Creating an API for spectrometer and motor controller
   1. Connect a spectrometer
   2. Connect a motor
   3. Set step size and step width
-  4. Ensure the step width does not go past the physical range of the motor
+  4. Set averaging
+  5. Ensure the step width does not go past the physical range of the motor
      * for example: if the motor is homed and in position 0, no scan width will work for frogging as the motor cannot move any further back to initiate the scan
 * FROG with FROG button
   * The motor will move backwards by one full scan width and then begin scanning, moving by the inputted step size. Will finish after moving one full scan width past the original location (time 0) and will return to original location when FROG scan is finished
