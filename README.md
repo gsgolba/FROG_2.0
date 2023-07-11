@@ -7,7 +7,7 @@ Creating an API for spectrometer and motor controller
 * Run the program either by launching the executible (in dist folder) or running the "FROG_GUI_2.0.py" script. Should display an interface as below
 This would look something like (**Need python 3.x installed for these libraries**)
 ```powershell
-python -m pip install tkinter
+python -m pip install tk
 python -m pip install seabreeze
 python -m pip install seatease
 python -m pip install pythonnet
